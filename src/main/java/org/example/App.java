@@ -1,7 +1,17 @@
 package org.example;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.*;
+import java.lang.runtime.ObjectMethods;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class App{
@@ -17,24 +27,47 @@ public class App{
             System.out.printf("명령) ");
             String line = sc.nextLine().trim();
             if (line.equals("종료")) {
+//                try {
+//                    File file = new File("C:/Users/kwan/Desktop/test/example.txt");
+//                    // 파일 출력 스트림 생성
+//                    FileOutputStream fos = new FileOutputStream(file);
+//                    // PrintWriter로 출력 스트림 감싸기
+//                    PrintWriter pw = new PrintWriter(fos);
+//                    // ArrayList의 모든 요소를 파일에 쓰기
+//                    for (Book book_list : books) {
+//                        pw.println(book_list.getNo()+"/"+book_list.getAuthor()+"/"+book_list.getContent());
+//                    }
+//
+//                    // 출력 스트림 닫기
+//                    pw.close();
+//                    fos.close();
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+                String filePath = "C:/Users/kwan/Desktop/test/example.json";
 
+                List<JSONObject> json_arr = new ArrayList<>();
 
                 try {
-                    File file = new File("C:/Users/kwan/Desktop/test/example.txt");
-                    // 파일 출력 스트림 생성
-                    FileOutputStream fos = new FileOutputStream(file);
-                    // PrintWriter로 출력 스트림 감싸기
-                    PrintWriter pw = new PrintWriter(fos);
-                    // ArrayList의 모든 요소를 파일에 쓰기
-                    for (Book book_list : books) {
-                        pw.println(book_list.getNo()+"/"+book_list.getAuthor()+"/"+book_list.getContent());
+
+                    for(Book o : books){
+                        JSONObject json = new JSONObject();
+                        json.put("id", o.getNo());
+                        json.put("content",o.getContent());
+                        json.put("author", o.getAuthor());
+
+                        json_arr.add(json);
+
                     }
 
-                    // 출력 스트림 닫기
-                    pw.close();
-                    fos.close();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-                } catch (IOException e) {
+                try (PrintWriter out = new PrintWriter(new FileWriter(filePath))) {
+                    out.write(json_arr.toString());
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -52,21 +85,51 @@ public class App{
             } else if (line.equals("목록")) {
 
                 if(books.isEmpty()){
+//                    try {
+//                        File file = new File("C:/Users/kwan/Desktop/test/example.txt");
+//                        FileInputStream fis = new FileInputStream(file);
+//                        // BufferedReader로 입력 스트림 감싸기
+//                        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+//                        // 파일의 모든 라인을 읽어서 ArrayList에 저장
+//                        String str;
+//                        while ((str = br.readLine()) != null) {
+//                            String[] txt_in = str.split("/");
+//                            books.add(new Book(Long.parseLong(txt_in[0]), txt_in[1], txt_in[2]));
+//                        }
+//
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+                    String list_filePath = "C:/Users/kwan/Desktop/test/example.json";
+                    String json_ls = "";
                     try {
-                        File file = new File("C:/Users/kwan/Desktop/test/example.txt");
-                        FileInputStream fis = new FileInputStream(file);
-                        // BufferedReader로 입력 스트림 감싸기
-                        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-                        // 파일의 모든 라인을 읽어서 ArrayList에 저장
+                        BufferedReader br = new BufferedReader(new FileReader(list_filePath));
                         String str;
-                        while ((str = br.readLine()) != null) {
-                            String[] txt_in = str.split("/");
-                            books.add(new Book(Long.parseLong(txt_in[0]), txt_in[1], txt_in[2]));
+                        while ((str = br.readLine())!= null) {
+                            json_ls += str;
                         }
-
+                        br.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    try {
+                        JSONArray jsonArray = new JSONArray(json_ls);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jo = jsonArray.getJSONObject(i);
+                            Long id = jo.getLong("id");
+                            String author = jo.getString("author");
+                            String ctt = jo.getString("content");
+                            books.add(new Book(id, author, ctt));
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    for (Book b : books) {
+                        System.out.println(b.getNo()+" / "+b.getAuthor()+" / "+b.getContent());
+                    }
+
+
                 }
 
 
